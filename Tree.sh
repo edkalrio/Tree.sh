@@ -6,6 +6,26 @@ center=$(( cols/2 ))
 max_H=$(( (rows - 4)/4 - 1 ))
 max_W=$(( (cols - 15)/8 - 1 ))
 tree_size=$(( max_H < max_W ? max_H : max_W ))
+tick_tock=1
+red=$(tput setaf 1)
+green=$(tput setaf 2)
+yellow=$(tput setaf 3)
+blue=$(tput setaf 4)
+magenta=$(tput setaf 5)
+white=$(tput setaf 7)
+bold=$(tput bold)
+dim=$(tput dim)
+star="O"
+ball="o"
+
+colour_blink() {
+	if (( $1 == 1 )); then
+		echo "$bold"
+	else
+		echo "$dim"
+	fi
+	echo "$2"
+}
 
 addchar() {
 	tput cup "$1" $(( center + "$2" ))
@@ -23,50 +43,57 @@ tree_area() {
 }
 
 draw_star() {
-	addchar 3  0 "O"
-
+	colour_blink "$tick_tock" "$yellow"
+	addchar 3  0 "$star"
+	
+	colour_blink "$tick_tock" "$white"
 	addchar 2  1 "/"
 	addchar 2 -1 "\\"
 	addchar 4  1 "\\"
 	addchar 4 -1 "/"
 
-	addchar 3  1 "="
-	addchar 3 -1 "="
-	addchar 2  0 "|"
-	addchar 4  0 "|"
-
 	addchar 3  2 "-"
 	addchar 3 -2 "-"
 	addchar 1  0 "|"
 	addchar 5  0 "|"
+	
+	colour_blink $(( 1 - tick_tock )) "$white"
+	addchar 3  1 "="
+	addchar 3 -1 "="
+	addchar 2  0 "|"
+	addchar 4  0 "|"
 
 	addchar 3  3 "-"
 	addchar 3 -3 "-"
 }
 
 grow_tree() {
+	echo "$green"
 	for (( i = 0; i < tree_size; i++ )); do
 		for (( j = 0; j < 4; j++ )); do
 			addchar $(( 4*i + j + 4 )) $((   4*i + 2*j + 1 )) "\\"
 			addchar $(( 4*i + j + 4 )) $(( - 4*i - 2*j - 1 )) "/"
 		done
 	done
+	tput sgr0
 }
 
 lights() {
 	for (( i = 0; i < area/10; i++ )); do
-		tree_H=$(( ${#w[*]} ))
+		tree_H=${#w[*]}
 		random_pre_y=$(( RANDOM % tree_H ))
 		random_pre_x=$(( RANDOM % cols ))
-		if [[ $random_pre_x -lt ${w[random_pre_y]} ]]; then
+		if (( random_pre_x < w[random_pre_y] )); then
 			random_y=$(( random_pre_y + 4 ))
 			random_x=$(( (random_pre_x - 1) / 2 ))
-			if [[ $((RANDOM % 2)) -eq 1 ]]; then
+			if (( RANDOM % 2 == 1 )); then
 				random_x=$(( - random_x ))			
-			fi	
-			addchar $random_y $random_x "o"
+			fi
+			tput setaf $(( RANDOM % 5 + 1))
+			addchar $random_y $random_x $ball
 		fi
 	done
+	tput sgr0
 }
 
 tput clear
