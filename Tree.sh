@@ -7,11 +7,8 @@ max_H=$(( (rows - 4)/4 - 1 ))
 max_W=$(( (cols - 15)/8 - 1 ))
 tree_size=$(( max_H < max_W ? max_H : max_W ))
 tick_tock=1
-red=$(tput setaf 1)
 green=$(tput setaf 2)
 yellow=$(tput setaf 3)
-blue=$(tput setaf 4)
-magenta=$(tput setaf 5)
 white=$(tput setaf 7)
 bold=$(tput bold)
 dim=$(tput dim)
@@ -48,12 +45,13 @@ draw_star() {
 	
 	colour_blink "$tick_tock" "$white"
 	addchar 2  1 "/"
-	addchar 2 -1 "\\"
-	addchar 4  1 "\\"
 	addchar 4 -1 "/"
+	addchar 2 -1 "\\"
+	addchar 4  1 "\\"	
 
 	addchar 3  2 "-"
 	addchar 3 -2 "-"
+
 	addchar 1  0 "|"
 	addchar 5  0 "|"
 	
@@ -79,7 +77,15 @@ grow_tree() {
 }
 
 lights() {
-	for (( i = 0; i < area/10; i++ )); do
+	# off
+	for (( i = 0; i < tree_size; i++ )); do
+		for (( j = 0; j < 4; j++ )); do
+			tput cup $(( 4*i + j + 4 )) $(( center - 4*i - 2*j ))
+			tput ech $(( 8*i + 4*j ))
+		done
+	done
+	# on
+	for (( i = 0; i < area/7; i++ )); do
 		tree_H=${#w[*]}
 		random_pre_y=$(( RANDOM % tree_H ))
 		random_pre_x=$(( RANDOM % cols ))
@@ -96,10 +102,14 @@ lights() {
 	tput sgr0
 }
 
+tput civis
 tput clear
-
 grow_tree
-draw_star
 
-tree_area
-lights
+while true; do
+	tree_area
+	lights
+	draw_star
+	tick_tock=$(( 1 - tick_tock ))
+	sleep 1
+done
