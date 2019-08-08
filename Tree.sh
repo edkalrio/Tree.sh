@@ -1,11 +1,5 @@
 #!/bin/bash
 
-cols=$(tput cols)
-rows=$(tput lines)
-center=$(( cols/2 ))
-max_H=$(( (rows - 4)/4 - 1 ))
-max_W=$(( (cols - 15)/8 - 1 ))
-tree_size=$(( max_H < max_W ? max_H : max_W ))
 tick_tock=1
 green=$(tput setaf 2)
 yellow=$(tput setaf 3)
@@ -15,13 +9,26 @@ dim=$(tput dim)
 star="O"
 ball="o"
 
-colour_blink() {
-	if (( $1 == 1 )); then
-		echo "$bold"
-	else
-		echo "$dim"
-	fi
-	echo "$2"
+main() {
+	cols=$(tput cols)
+	rows=$(tput lines)
+	center=$(( cols/2 ))
+	max_H=$(( (rows - 4)/4 - 1 ))
+	max_W=$(( (cols - 15)/8 - 1 ))
+	tree_size=$(( max_H < max_W ? max_H : max_W ))
+	tput clear
+	tree_area
+	grow_tree
+	loop
+}
+
+loop() {
+	while true; do	
+		lights
+		draw_star
+		tick_tock=$(( 1 - tick_tock ))
+		sleep 1
+	done
 }
 
 addchar() {
@@ -29,14 +36,13 @@ addchar() {
 	echo "$3"
 }
 
-tree_area() {
-	for (( i = 0; i < tree_size; i++ )); do
-		for (( j = 0; j < 4; j++ )); do
-			k=$(( 4*i + j ))
-			w[k]=$(( 8*i + 4*j + 1 ))
-			area=$(( ${w[@]/%/+}0 ))
-		done
-	done
+colour_blink() {
+	if (( $1 == 1 )); then
+		echo "$bold"
+	else
+		echo "$dim"
+	fi
+	echo "$2"
 }
 
 draw_star() {
@@ -63,6 +69,17 @@ draw_star() {
 
 	addchar 3  3 "-"
 	addchar 3 -3 "-"
+	tput sgr0
+}
+
+tree_area() {
+	for (( i = 0; i < tree_size; i++ )); do
+		for (( j = 0; j < 4; j++ )); do
+			k=$(( 4*i + j ))
+			w[k]=$(( 8*i + 4*j + 1 ))
+			area=$(( ${w[@]/%/+}0 ))
+		done
+	done
 }
 
 grow_tree() {
@@ -102,14 +119,15 @@ lights() {
 	tput sgr0
 }
 
-tput civis
-tput clear
-grow_tree
+safe_shutdown() {
+	tput cnorm
+	tput sgr0
+	tput clear
+	exit 0
+}
 
-while true; do
-	tree_area
-	lights
-	draw_star
-	tick_tock=$(( 1 - tick_tock ))
-	sleep 1
-done
+trap main WINCH
+trap safe_shutdown SIGINT
+
+tput civis
+main
