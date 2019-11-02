@@ -110,7 +110,7 @@ lights() {
 			random_y=$(( random_pre_y + 4 ))
 			random_x=$(( (random_pre_x - 1) / 2 ))
 			if (( RANDOM % 2 == 1 )); then
-				random_x=$(( - random_x ))			
+				random_x=$(( - random_x ))
 			fi
 			tput setaf $(( RANDOM % 5 + 1))
 			addchar $random_y $random_x $ball
