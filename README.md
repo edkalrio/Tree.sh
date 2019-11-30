@@ -2,7 +2,7 @@
 
 ![Travis (.com)](https://img.shields.io/travis/com/edkalrio/Tree.sh?label=ShellCheck)
 
-<center>![](/Tree.svg)</center>
+![](/Tree.svg)
 
 `Tree.sh` is a terminal animation based on the classic [Acme::POE::Tree](https://github.com/rcaputo/acme-poe-tree) by Rocco Caputo but it's written in Bash from scratch to be more portable, easier to install and simpler (200 SLOC less).
 
